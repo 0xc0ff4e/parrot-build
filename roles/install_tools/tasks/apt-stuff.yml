@@ -1,0 +1,62 @@
+---
+- name: "Updating apt repo/cache"
+  ansible.builtin.apt:
+    force_apt_get: true
+    cache_valid_time: 3600
+  become: true
+
+- name: "Upgrade all packages"
+  ansible.builtin.apt:
+    upgrade: safe
+    force_apt_get: true
+  become: true
+
+- name: "Installing Packages"
+  ansible.builtin.package:
+    name:
+      - jq
+      # - pipx
+      - ntpdate
+      - flameshot
+      - exiftool
+      - rsyslog
+      - ca-certificates
+      - curl
+      - gh
+    state: latest
+    update_only: true
+  become: true
+
+
+## Ill stick with podman for now
+# - name: "Add Docker keyring to apt"
+#   apt_key:
+#     url: "https://download.docker.com/linux/debian/gpg"
+#     state: present
+#   become: true
+#
+
+# - name: "Install Docker Repository"
+#   apt_repository:
+#     repo: "deb [arch=amd64] https://download.docker.com/linux/debian {{ install_tools_distribution }} stable"
+#     state: present
+#     update_cache: yes
+#   become: true
+#
+
+# - name: "Upgrade all packages"
+#   apt: upgrade=yes force_apt_get=yes
+#   become: true
+#
+
+# - name: "Install Docker"
+#   package:
+#     name:
+#       - docker-ce
+#       - docker-ce-cli
+#       - containerd.io
+#       - docker-buildx-plugin
+#       - docker-compose-plugin
+#     state: latest
+#   become: true
+#

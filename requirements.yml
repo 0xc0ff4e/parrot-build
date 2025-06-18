@@ -1,2 +1,6 @@
-- src: gantsign.visual-studio-code
-- src: moreati.uv
+---
+roles:
+  - name: gantsign.visual-studio-code
+
+collections:
+  - name: moreati.uv

@@ -1,0 +1,6 @@
+---
+# - name: "Setup Burp"
+#   ansible.builtin.include_tasks: "burp.yml"
+
+- name: "Add Firefox Plugins"
+  ansible.builtin.include_tasks: "firefox.yml"

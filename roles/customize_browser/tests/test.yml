@@ -1,0 +1,6 @@
+---
+- name: "Test customize browser"
+  hosts: localhost
+  remote_user: root
+  roles:
+    - customize_browser

@@ -8,8 +8,8 @@
 * Make sure we have a sudo token (sudo whoami)
 * ansible-playbook main.yml
 
-to see which tasks would be executed: 
-* ansible-playbook main.yaml --list-tasks 
+to see which tasks would be executed:
+* ansible-playbook main.yaml --list-tasks
 
 ```bash
 # add private ssh key 'c0ffee4dd1ct-pwnbox'
@@ -22,9 +22,9 @@ uv tool install ansible
 
 git clone git@github.com:0xc0ff4e/parrot-build.git
 cd parrot-build
-ansible-playbook main.yaml --list-tasks 
+ansible-playbook main.yaml --list-tasks
 ansible-galaxy install -r requirements.yml
-sodo whoami 
+sodo whoami
 ansible-playbook main.yml
 ```
 

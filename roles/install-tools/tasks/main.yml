@@ -1,7 +1,0 @@
----
-- include_tasks: apt-stuff.yml
-- include_tasks: kerbrute.yml
-- include_tasks: github-repos.yml
-# - include_tasks: python-tools.yml # TODO: convert to uv
-# - include_tasks: gem-tools.yml
-# - include_tasks: bloodhound.yml # TODO install bloodhound again.. just to make setup easier for first install

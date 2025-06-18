@@ -1,0 +1,3 @@
+---
+- name: "Add NOPASSWD current user"
+  ansible.builtin.include_tasks: "configure-sudoers.yml"

@@ -1,0 +1,8 @@
+# code: language=ansible
+---
+- name: "Updating Firefox Policies"
+  ansible.builtin.template:
+    src: "templates/policies.json.j2"
+    dest: "/usr/share/firefox-esr/distribution/policies.json"
+    mode: "0644"
+  become: true

@@ -1,0 +1,26 @@
+---
+- name: "Enable rsyslog service"
+  ansible.builtin.service:
+    name: rsyslog
+    enabled: true
+    state: started
+  become: true
+
+- name: "Configure UFW"
+  community.general.ufw:
+    state: enabled
+    policy: allow
+  become: true
+
+- name: "Log SYN packets in INPUT Chain"
+  ansible.builtin.lineinfile:
+    path: /etc/ufw/after.rules
+    line: '-A ufw-after-input -p tcp --syn -j LOG --log-prefix "[UFW-SYN-LOG] "'
+    insertbefore: "# don't delete the 'COMMIT' line or these rules won't be processed"
+  become: true
+
+- name: "Restart ufw"
+  ansible.builtin.service:
+    name: ufw
+    state: restarted
+  become: true

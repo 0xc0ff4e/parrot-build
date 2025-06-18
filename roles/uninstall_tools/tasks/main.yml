@@ -1,0 +1,33 @@
+---
+# - name: "Remove unofficial docker images"
+#   ansible.builtin.package:
+#     name:
+#       - docker.io
+#       - docker-compose
+#       - docker-doc
+#       - podman-docker
+#     state: absent
+#   register: docker_remove
+#   become: true
+
+- name: "Remove NetExec - We want to use uv for this"
+  ansible.builtin.package:
+    name:
+      - netexec
+    state: absent
+  become: true
+
+# - name: "Remove Containerd/Runc"
+#   ansible.builtin.package:
+#     name:
+#       - containerd
+#       - runc
+#     state: absent
+#   when: docker_remove.changed
+#   become: true
+
+# TODO uninstall tools that i dont use
+# tor anonsurf etc
+
+# codium!?
+# default screencapture!?

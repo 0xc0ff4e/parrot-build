@@ -3,20 +3,19 @@
   hosts: localhost
   connection: local
   roles:
-    - role: "roles/uninstall-tools"
-    - role: "roles/install-tools"
-    # - role: "roles/configure-tmux"
-    - role: "roles/customize-terminal"  
-    - role: "roles/customize-browser"   
-    - role: "roles/configure-logging"
-    - role: "roles/configure-system"
+    - uninstall_tools
+    - install_tools
+    # configure_tmux
+    - customize_terminal
+    - customize_browser
+    - configure_logging
+    - configure_system
     - role: gantsign.visual-studio-code
       users:
-        - username: "{{ ansible_user_id }}" 
+        - username: "{{ ansible_user_id }}"
           visual_studio_code_extensions:
             - streetsidesoftware.code-spell-checker
             - ms-python.python
     #        - DEVSENSE.phptools-vscode
     #        - GitHub.copilot
-            - snyk-security.snyk-vulnerability-scanner
-
+            - snyk-security.snyk-vulnerability-scan

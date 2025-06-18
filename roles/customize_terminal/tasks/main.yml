@@ -1,0 +1,22 @@
+---
+# - name: "Copy BashRC"
+#   ansible.builtin.copy:
+#     src: "{{ role_path }}/files/.bashrc"
+#     dest: "{{ ansible_env.HOME }}"
+#     mode: "0644"
+
+- name: "Copy Bash Aliases"
+  ansible.builtin.copy:
+    src: "{{ role_path }}/files/.bash_aliases"
+    dest: "{{ ansible_env.HOME }}"
+    mode: "0644"
+
+# - name: "Ensure .bash_profile sources .bashrc inside tmux"
+#   ansible.builtin.lineinfile:
+#     path: "{{ ansible_env.HOME }}/.bash_profile"
+#     line: |
+#       if [[ -n "$TMUX" ]]; then
+#           source ~/.bashrc
+#       fi
+#     insertafter: EOF
+#     create: yes

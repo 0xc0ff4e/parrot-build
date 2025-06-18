@@ -1,0 +1,3 @@
+---
+# defaults file for install-tools
+install_tools_distribution: "bookworm"

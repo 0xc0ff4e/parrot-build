@@ -1,0 +1,18 @@
+---
+- name: "APT Stuff"
+  ansible.builtin.include_tasks: apt-stuff.yml
+
+- name: "Install Kerbrute"
+  ansible.builtin.include_tasks: kerbrute.yml
+
+- name: "Checkout GithubRepos and install Release Binaries"
+  ansible.builtin.include_tasks: github-repos.yml
+
+- name: "Install Python Tools"
+  ansible.builtin.include_tasks: python-tools.yml
+
+# - name: "Install Tools from Ruby Gems"
+#   include_tasks: gem-tools.yml
+
+# - name: "Install Bloodhound CE"
+#   include_tasks: bloodhound.yml # TODO install bloodhound again.. just to make setup easier for first install

@@ -1,0 +1,6 @@
+---
+- name: "Test Customize Terminal"
+  hosts: localhost
+  remote_user: root
+  roles:
+    - customize_terminal
