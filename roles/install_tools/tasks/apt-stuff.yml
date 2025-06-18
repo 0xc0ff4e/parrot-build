@@ -23,8 +23,7 @@
       - ca-certificates
       - curl
       - gh
-    state: latest
-    update_only: true
+    state: present
   become: true
 
 

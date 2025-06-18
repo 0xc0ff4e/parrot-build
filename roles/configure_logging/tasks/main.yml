@@ -1,5 +1,9 @@
 ---
 - name: "Setup UFW"
   ansible.builtin.include_tasks: "ufw.yml"
+
 - name: "Setup Audit Daemon"
   ansible.builtin.include_tasks: "auditd.yml"
+  vars:
+    # Only setup on first time or when this flag is true:
+    force_update: false

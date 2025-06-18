@@ -46,7 +46,7 @@
     },
     "Extensions": {
       "Install": [
-{% for item in FirefoxPlugins %}
+{% for item in customize_browser_firefox_plugins %}
         "https://addons.mozilla.org/firefox/downloads/latest/{{ item }}/latest.xpi"{{ "," if not loop.last }}
 {% endfor %}
       ]

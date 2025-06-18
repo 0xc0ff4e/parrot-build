@@ -18,9 +18,6 @@
     line: '-A ufw-after-input -p tcp --syn -j LOG --log-prefix "[UFW-SYN-LOG] "'
     insertbefore: "# don't delete the 'COMMIT' line or these rules won't be processed"
   become: true
-
-- name: "Restart ufw"
-  ansible.builtin.service:
-    name: ufw
-    state: restarted
-  become: true
+  register: ufw_rules
+  notify:
+    - restart_ufw

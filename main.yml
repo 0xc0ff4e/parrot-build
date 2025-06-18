@@ -11,6 +11,7 @@
     - configure_logging
     - configure_system
     - role: gantsign.visual-studio-code
+      visual_studio_code_skip_add_repo: false
       users:
         - username: "{{ ansible_user_id }}"
           visual_studio_code_extensions:
@@ -18,4 +19,4 @@
             - ms-python.python
     #        - DEVSENSE.phptools-vscode
     #        - GitHub.copilot
-            - snyk-security.snyk-vulnerability-scan
+            - snyk-security.snyk-vulnerability-scanner

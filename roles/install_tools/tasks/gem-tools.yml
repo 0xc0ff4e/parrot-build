@@ -1,21 +1,6 @@
 ---
-- name: "Installing tools from Gems"
+- name: "Installing tools from Gems: {{ item }}"
   community.general.gem:
     name: "{{ item }}"
     state: latest
-  loop:
-    - logger
-    - stringio
-    - winrm
-    - builder
-    - erubi
-    - gssapi
-    - gyoku
-    - httpclient
-    - logging
-    - little-plugger
-    - nori
-    - rubyntlm
-    - winrm-fs
-    - evil-winrm
   become: true

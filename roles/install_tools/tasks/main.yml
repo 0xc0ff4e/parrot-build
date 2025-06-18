@@ -2,17 +2,53 @@
 - name: "APT Stuff"
   ansible.builtin.include_tasks: apt-stuff.yml
 
-- name: "Install Kerbrute"
-  ansible.builtin.include_tasks: kerbrute.yml
+- name: "Install Go Tools"
+  ansible.builtin.include_tasks: go-tools.yml
+  loop:
+    - { name: kerbrute, url: github.com/ropnop/kerbrute@master, upgrade: false }
 
-- name: "Checkout GithubRepos and install Release Binaries"
-  ansible.builtin.include_tasks: github-repos.yml
+- name: "Checkout GithubRepos"
+  ansible.builtin.include_tasks: checkout-github-repos.yml
+  loop:
+    # - { repo: "https://github.com/Flangvik/SharpCollection", location: "/opt/SharpCollection" }
+    - { repo: "https://github.com/danielmiessler/SecLists", location: "/opt/SecLists", upgrade: false }
 
-- name: "Install Python Tools"
+- name: "Install Release Binaries from github"
+  ansible.builtin.include_tasks: install-github-release.yml
+  loop:
+    - { repo: "jpillora/chisel", regex: "_linux_amd64.gz", location: "/opt/chisel", exe: chisel, upgrade: false }
+    - { repo: "jpillora/chisel", regex: "_windows_amd64.gz", location: "/opt/chisel", exe: chisel.exe, upgrade: false }
+    # - { repo: "jpillora/chisel",  regex: "_darwin_amd64", location: "/opt/chisel", filename: "chisel_osx", exe: TODO }
+    - { repo: "carlospolop/PEASS-ng", regex: "linpeas.sh", location: "/opt/peas", exe: linpeas.sh, upgrade: false }
+    - { repo: "carlospolop/PEASS-ng", regex: "winPEASx64.exe", location: "/opt/peas", exe: winPEASx64.exe, upgrade: false }
+    - { repo: "WithSecureLabs/chainsaw", regex: "chainsaw_all_", location: "/opt/", exe: chainsaw, upgrade: false }
+    # - { repo: "BloodHoundAD/BloodHound", regex: "BloodHound-linux-x64.zip", location: "/opt/", exe: TODO }
+
+- name: "Install Python uvx Tools"
   ansible.builtin.include_tasks: python-tools.yml
+  loop:
+    - { name: 'impacket', url: 'git+https://github.com/fortra/impacket.git', upgrade: false }
+    - { name: 'netexec', url: 'git+https://github.com/Pennyw0rth/NetExec.git', upgrade: false }
+    - { name: 'certipy-ad', url: 'git+https://github.com/ly4k/Certipy.git', upgrade: false}
+    - { name: 'bloodhound-ce', url: 'git+https://github.com/dirkjanm/BloodHound.py.git@bloodhound-ce', upgrade: false }
 
-# - name: "Install Tools from Ruby Gems"
-#   include_tasks: gem-tools.yml
+- name: "Install Tools from Ruby Gems"
+  ansible.builtin.include_tasks: gem-tools.yml
+  loop:
+    - logger
+    - stringio
+    - winrm
+    - builder
+    - erubi
+    - gssapi
+    - gyoku
+    - httpclient
+    - logging
+    - little-plugger
+    - nori
+    - rubyntlm
+    - winrm-fs
+    - evil-winrm
 
 # - name: "Install Bloodhound CE"
-#   include_tasks: bloodhound.yml # TODO install bloodhound again.. just to make setup easier for first install
+#   ansible.builtin.include_tasks: bloodhound.yml # TODO install bloodhound again.. just to make setup easier for first install

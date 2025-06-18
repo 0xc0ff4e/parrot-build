@@ -4,39 +4,69 @@
     state: present
   become: true
 
-- name: "Configure Audit Rules"
-  ansible.builtin.copy:
-    src: audit.rules
-    dest: /etc/audit/rules.d/audit.rules
-    owner: root
-    group: root
-    mode: "0640"
-  become: true
+- name: Is Laurel installed
+  ansible.builtin.stat:
+    path: /usr/local/sbin/laurel
+  register: laurel_bin
 
-- name: "Create _laurel user"
-  ansible.builtin.user:
-    name: _laurel
-    state: present
-    shell: /bin/false
-    create_home: false
-    home: /var/log/laurel
-  become: true
+- name: Install laurel
+  when: not laurel_bin.stat.exists
+  block:
+    - name: "Downloading https://github.com/threathunters-io/laurel/releases/download/v0.5.2/laurel-v0.5.2-x86_64-glibc.tar.gz"
+      ansible.builtin.get_url:
+        url: https://github.com/threathunters-io/laurel/releases/download/v0.5.2/laurel-v0.5.2-x86_64-glibc.tar.gz
+        dest: /tmp/laurel-v0.5.2-x86_64-glibc.tar.gz
+        mode: "0640"
 
-- name: "Create directories for _laurel /var/log/laurel"
-  ansible.builtin.file:
-    path: "{{ item.path }}"
-    state: directory
-    owner: "{{ item.owner | default('root') }}"
-    group: "{{ item.group | default('root') }}"
-    mode: "{{ item.mode | default('0750') }}"
-  loop:
-    - { "path": "/var/log/laurel", "owner": "_laurel", "group": "_laurel" }
-    - { "path": "/tmp/laurel", "owner": "_laurel", "group": "_laurel" }
-    - { "path":"/etc/laurel" }
-  become: true
+    - name: "Extract /tmp/laurel-v0.5.2-x86_64-glibc.tar.gz"
+      ansible.builtin.unarchive:
+        src: /tmp/laurel-v0.5.2-x86_64-glibc.tar.gz
+        dest: /tmp/laurel/
+        owner: root
+        group: root
+        mode: "0755"
+      become: true
 
-  async: 15
-  poll: 0
+    - name: "Running install -m755 laurel /usr/local/sbin/laurel"
+      ansible.builtin.command: "install -m755 laurel /usr/local/sbin/laurel"
+      args:
+        chdir: /tmp/laurel/
+      become: true
+      changed_when: true
+
+    - name: "Cleanup targz"
+      ansible.builtin.file:
+        path: /tmp/laurel-v0.5.2-x86_64-glibc.tar.gz
+        state: absent
+
+    - name: "Cleanup laurel dir"
+      ansible.builtin.file:
+        path: /tmp/laurel/
+        state: absent
+      become: true
+
+    - name: "Create directories for _laurel /var/log/laurel"
+      ansible.builtin.file:
+        path: "{{ item.path }}"
+        state: directory
+        owner: "{{ item.owner | default('root') }}"
+        group: "{{ item.group | default('root') }}"
+        mode: "{{ item.mode | default('0750') }}"
+      loop:
+        - { path: "/var/log/laurel", owner: "_laurel", group: "_laurel" }
+        - { path: "/etc/laurel" }
+      become: true
+      async: 15
+      poll: 0
+
+    - name: "Create _laurel user"
+      ansible.builtin.user:
+        name: _laurel
+        state: present
+        shell: /bin/false
+        create_home: false
+        home: /var/log/laurel
+      become: true
 
 - name: "Copy laurel/config.toml to /etc/laurel/config.toml"
   ansible.builtin.copy:
@@ -45,7 +75,9 @@
     owner: _laurel
     group: _laurel
     mode: "0640"
+    force: "{{ force_update }}"
   become: true
+  register: laurel_config_toml
 
 - name: "Copy laurel/laurel.conf to /etc/audit/plugins.d"
   ansible.builtin.copy:
@@ -54,32 +86,24 @@
     owner: root
     group: root
     mode: "0640"
+    force: "{{ force_update }}"
   become: true
+  register: laurel_conf
 
-- name: "Downloading https://github.com/threathunters-io/laurel/releases/download/v0.5.2/laurel-v0.5.2-x86_64-glibc.tar.gz"
-  ansible.builtin.get_url:
-    url: https://github.com/threathunters-io/laurel/releases/download/v0.5.2/laurel-v0.5.2-x86_64-glibc.tar.gz
-    dest: /tmp/laurel-v0.5.2-x86_64-glibc.tar.gz
-    mode: "0640"
-
-- name: "Extract /tmp/laurel-v0.5.2-x86_64-glibc.tar.gz"
-  ansible.builtin.unarchive:
-    src: /tmp/laurel-v0.5.2-x86_64-glibc.tar.gz
-    dest: /tmp/laurel/
+- name: "Configure Audit Rules"
+  ansible.builtin.copy:
+    src: audit.rules
+    dest: /etc/audit/rules.d/audit.rules
     owner: root
     group: root
-    mode: "0755"
+    mode: "0640"
+    force: "{{ force_update }}"
   become: true
+  register: audit_rules
 
-- name: "Running install -m755 laurel /usr/local/sbin/laurel"
-  ansible.builtin.command: "install -m755 laurel /usr/local/sbin/laurel"
-  args:
-    chdir: /tmp/laurel/
-  become: true
+- name: "Notify"
+  ansible.builtin.command: echo "Auditd or laurel config changed - notifying handler"
+  when: laurel_config_toml.changed or laurel_conf.changed or audit_rules.changed
   changed_when: true
-
-- name: "Restart auditd"
-  ansible.builtin.service:
-    name: auditd
-    state: restarted
-  become: true
+  notify:
+    - restart_auditd

@@ -1,0 +1,12 @@
+---
+- name: "Already exists: {{ item.name }}"
+  ansible.builtin.stat:
+    path: "{{ item.location }}"
+  register: checkout_repo
+
+- name: "Checkout useful github repos: {{ item.name }}" # noqa: latest
+  ansible.builtin.git:
+    repo: "{{ item.repo }}"
+    dest: "{{ item.location }}"
+  become: true
+  when: not checkout_repo.stat.exists or item.upgrade

@@ -1,0 +1,10 @@
+---
+- name: "Already installed: {{ item.name }}"
+  ansible.builtin.stat:
+    path: ~/go/bin/{{ item.name }}
+  register: go_tool
+
+- name: "Install Go Tool: {{ item.name }}"
+  ansible.builtin.command: go install {{ item.url }}
+  when: not go_tool.stat.exists or item.upgrade
+  changed_when: true
