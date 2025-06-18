@@ -50,5 +50,5 @@
     - winrm-fs
     - evil-winrm
 
-# - name: "Install Bloodhound CE"
-#   ansible.builtin.include_tasks: bloodhound.yml # TODO install bloodhound again.. just to make setup easier for first install
+- name: "Install Bloodhound CE"
+  ansible.builtin.include_tasks: bloodhound.yml

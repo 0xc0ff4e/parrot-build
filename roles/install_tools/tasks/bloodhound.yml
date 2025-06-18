@@ -9,7 +9,7 @@
     - "/opt/bloodhound"
     - "/opt/bloodhound/server"
 
-- name: "Download composer file"
+- name: "Download compose file"
   ansible.builtin.get_url:
     url: "https://ghst.ly/getbhce"
     dest: "/opt/bloodhound/server/docker-compose.yaml"
@@ -23,6 +23,7 @@
     replace: 'BLOODHOUND_PORT:-8088'
   become: true
 
+# TODO change this to use podman
 - name: "Download BloodHound"
   community.docker.docker_compose_v2:
     project_src: "/opt/bloodhound/server"

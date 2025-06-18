@@ -10,10 +10,11 @@
 #   register: docker_remove
 #   become: true
 
-- name: "Remove NetExec - We want to use uv for this"
+- name: "Remove Packages"
   ansible.builtin.package:
     name:
-      - netexec
+      - codium  # we install code
+      - netexec # we install it using uvx
     state: absent
   become: true
 
@@ -29,5 +30,5 @@
 # TODO uninstall tools that i dont use
 # tor anonsurf etc
 
-# codium!?
+
 # default screencapture!?

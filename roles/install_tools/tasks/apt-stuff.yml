@@ -15,7 +15,6 @@
   ansible.builtin.package:
     name:
       - jq
-      # - pipx
       - ntpdate
       - flameshot
       - exiftool
@@ -23,11 +22,13 @@
       - ca-certificates
       - curl
       - gh
+      - podman-compose
     state: present
   become: true
 
 
 ## Ill stick with podman for now
+
 # - name: "Add Docker keyring to apt"
 #   apt_key:
 #     url: "https://download.docker.com/linux/debian/gpg"
