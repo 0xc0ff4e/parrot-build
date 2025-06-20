@@ -4,10 +4,6 @@
     path: "{{ item.location }}/{{ item.filename }}"
   register: release_bin
 
-- name: Debug
-  debug:
-    msg: "{{ not release_bin.stat.exists }}  {{ item.upgrade }}"
-
 - name: Download Release Block
   when: not release_bin.stat.exists or item.upgrade
   block:

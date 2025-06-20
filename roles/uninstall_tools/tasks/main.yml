@@ -26,9 +26,3 @@
 #     state: absent
 #   when: docker_remove.changed
 #   become: true
-
-# TODO uninstall tools that i dont use
-# tor anonsurf etc
-
-
-# default screencapture!?
