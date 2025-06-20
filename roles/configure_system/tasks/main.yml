@@ -1,3 +1,21 @@
 ---
 - name: "Add NOPASSWD current user"
   ansible.builtin.include_tasks: "configure-sudoers.yml"
+
+- name: Add default static inventory dir
+  ansible.builtin.file:
+    path: /etc/ansible
+    state: directory
+    mode: "0755"
+    owner: root
+    group: root
+  become: true
+
+- name: Add default static inventory
+  ansible.builtin.copy:
+    src: inventory.ini
+    dest: /etc/ansible/hosts
+    mode: "0644"
+    owner: root
+    group: root
+  become: true

@@ -1,53 +1,106 @@
 ---
-- name: "Creating Directories"
-  ansible.builtin.file:
-    path: "{{ item }}"
-    state: directory
-    mode: '0744'
-  become: true
-  loop:
-    - "/opt/bloodhound"
-    - "/opt/bloodhound/server"
+- name: "Bloodhound Server already installed?"
+  ansible.builtin.stat:
+    path: /opt/bloodhound/server/initial-password.txt
+  register: initial_password
 
-- name: "Download compose file"
-  ansible.builtin.get_url:
-    url: "https://ghst.ly/getbhce"
-    dest: "/opt/bloodhound/server/docker-compose.yaml"
-    mode: "0644"
-  become: true
+- name: "Bloodhound Server Installation"
+  when: not initial_password.stat.exists
+  block:
+    - name: "Creating Directories"
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: directory
+        mode: '0755'
+      become: true
+      loop:
+        - "/opt/bloodhound"
+        - "/opt/bloodhound/server"
 
-- name: "Change bloodhound port away from 8080"
-  ansible.builtin.replace:
-    path: "/opt/bloodhound/server/docker-compose.yaml"
-    regexp: 'BLOODHOUND_PORT:-8080'
-    replace: 'BLOODHOUND_PORT:-8088'
-  become: true
+    - name: "Download compose file"
+      ansible.builtin.get_url:
+        url: "https://ghst.ly/getbhce"
+        dest: "/opt/bloodhound/server/docker-compose.yaml"
+        mode: "0644"
+      become: true
 
-# TODO change this to use podman
-- name: "Download BloodHound"
-  community.docker.docker_compose_v2:
-    project_src: "/opt/bloodhound/server"
-    state: present
-  become: true
+    - name: "Change bloodhound port away from 8080"
+      ansible.builtin.replace:
+        path: "/opt/bloodhound/server/docker-compose.yaml"
+        regexp: 'BLOODHOUND_PORT:-8080'
+        replace: 'BLOODHOUND_PORT:-8088'
+      become: true
 
-- name: "Wait for bloodhound to be up"
-  ansible.builtin.wait_for:
-    host: "localhost"
-    port: 7474
-    delay: 10
-    timeout: 300
-  become: true
+    # TODO change this to use podman
+    # - name: "Download BloodHound"
+    #   community.docker.docker_compose_v2:
+    #     project_src: "/opt/bloodhound/server"
+    #     state: present
+    #   become: true
 
-# There probably is a better way to do this...
-- name: "Grab Bloodhound Password"
-  ansible.builtin.command: 'cd /opt/bloodhound/server; docker compose logs bloodhound | grep -oP "Password Set To:\s+\K[\S]+"'
-  register: bloodhound_password
-  become: true
-  changed_when: true
+    - name: "Ensure there are no running services (just if there was some error during installation)"
+      ansible.builtin.command:
+        chdir: /opt/bloodhound/server
+        cmd: podman-compose down
+      changed_when: true
 
-- name: "Create file with bloodhound password"
-  ansible.builtin.copy:
-    content: "username: admin\npassword: {{ bloodhound_password.stdout }}"
-    dest: "/opt/bloodhound/server/initial-password.txt"
-    mode: "0600"
-  become: true
+    - name: "Start dependencies"
+      ansible.builtin.command:
+        chdir: /opt/bloodhound/server
+        cmd: 'podman-compose up -d --force-recreate app-db graph-db'
+      changed_when: true
+
+    - name: "Wait for neo4j to be up"
+      ansible.builtin.wait_for:
+        host: "localhost"
+        port: 7474
+        delay: 10
+        timeout: 300
+
+    - name: "Start Bloodhound Server"
+      ansible.builtin.command:
+        chdir: "/opt/bloodhound/server"
+        cmd: 'podman-compose up -d --no-deps --force-recreate bloodhound'
+      changed_when: true
+
+    - name: "Wait for bloodhound to be up"
+      ansible.builtin.wait_for:
+        host: "localhost"
+        port: 8088
+        delay: 10
+        timeout: 300
+
+    - name: "Dump Start logs"
+      ansible.builtin.command:
+        chdir: "/opt/bloodhound/server"
+        cmd: podman-compose logs bloodhound # | grep -oP "Password Set To:\s+\K[\S]+"'
+      register: bloodhound_logs
+      changed_when: true
+
+    - name: "Grab Bloodhound Password"
+      ansible.builtin.set_fact:
+        bloodhound_password: "{{  bloodhound_logs.stdout | regex_search('Initial Password Set To:\\s+(.*?)\\s+#', '\\1') }}"
+
+    - name: Debug
+      ansible.builtin.debug:
+        msg: "{{ bloodhound_password }}"
+
+    - name: "Create file with bloodhound password"
+      ansible.builtin.copy:
+        content: "username: admin\npassword: {{ bloodhound_password }}"
+        dest: "/opt/bloodhound/server/initial-password.txt"
+        mode: "0600"
+      become: true
+
+    - name: "Stop services again"
+      ansible.builtin.command:
+        chdir: "/opt/bloodhound/server"
+        cmd: podman-compose stop
+      changed_when: true
+
+    - name: "Install bloodhound-cli wrapper script"
+      ansible.builtin.copy:
+        src: bloodhound-cli.sh
+        dest: "{{ ansible_env.HOME }}/.local/bin/bloodhound-cli"
+        mode: "0755"
+      become: true

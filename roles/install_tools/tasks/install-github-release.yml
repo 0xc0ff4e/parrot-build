@@ -1,8 +1,12 @@
 ---
-- name: "Already exists? Release Binary from github: {{ item.exe }}"
+- name: "Already exists? Release Binary from github: {{ item.filename }}"
   ansible.builtin.stat:
-    path: "{{ item.location }}/{{ item.exe }}"
+    path: "{{ item.location }}/{{ item.filename }}"
   register: release_bin
+
+- name: Debug
+  debug:
+    msg: "{{ not release_bin.stat.exists }}  {{ item.upgrade }}"
 
 - name: Download Release Block
   when: not release_bin.stat.exists or item.upgrade
@@ -29,9 +33,15 @@
         {{ item.location }}
         {% if item.filename is defined %}{{ item.filename }}{% endif %}
       async: 45
-      poll: 0
+      poll: 2
       become: true
       changed_when: true
+
+    - name: "Make file executable: {{ item.filename }}"
+      ansible.builtin.file:
+        path: "{{ item.location }}/{{ item.filename }}"
+        mode: "a+x"
+      become: true
 
     - name: Remove temporary build directory
       ansible.builtin.file:

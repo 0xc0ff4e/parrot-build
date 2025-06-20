@@ -22,7 +22,6 @@
       - ca-certificates
       - curl
       - gh
-      - podman-compose
     state: present
   become: true
 
