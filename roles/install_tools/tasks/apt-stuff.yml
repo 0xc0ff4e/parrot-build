@@ -23,6 +23,7 @@
       - curl
       - gh
       - fzf
+      - nfs-common
     state: present
   become: true
 
