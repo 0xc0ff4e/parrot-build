@@ -15,11 +15,12 @@
     - { name: 'certipy-ad', url: 'git+https://github.com/ly4k/Certipy.git', upgrade: false}
     - { name: 'bloodhound-ce', url: 'git+https://github.com/dirkjanm/BloodHound.py.git@bloodhound-ce', upgrade: false }
     - { name: 'podman-compose', url: 'git+https://github.com/containers/podman-compose.git', upgrade: false}
+    - { name: 'bloodyAD', url: 'git+https://github.com/CravateRouge/bloodyAD.git', upgrade: false}
 
 - name: "Checkout GithubRepos"
   ansible.builtin.include_tasks: checkout-github-repos.yml
   loop:
-    # - { repo: "https://github.com/Flangvik/SharpCollection", location: "/opt/SharpCollection" }
+    - { repo: "https://github.com/Flangvik/SharpCollection", location: "/opt/SharpCollection", upgrade: false }
     - { repo: "https://github.com/danielmiessler/SecLists", location: "/opt/SecLists", upgrade: false }
 
 - name: "Install Release Binaries from github"

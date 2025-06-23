@@ -13,6 +13,21 @@
 - name: "Remove Packages"
   ansible.builtin.package:
     name:
+      # never used...:
+      - anonsurf
+      - anonsurf-cli
+      - anonsurf-gtk
+      - brasero
+      - cheese
+      - geany-common
+      - geany
+      - mpv
+      - qbittorrent
+      - tor
+      - torbrowser-launcher
+      - torsocks
+      - tor-geoipdb
+      # replaced with other tool
       - codium  # we install code
       - netexec # we install it using uvx
     state: absent

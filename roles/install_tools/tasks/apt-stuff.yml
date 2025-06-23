@@ -22,6 +22,7 @@
       - ca-certificates
       - curl
       - gh
+      - fzf
     state: present
   become: true
 
